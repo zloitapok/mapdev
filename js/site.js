@@ -31,7 +31,6 @@ function initialize(lat, lng) {
 
 function placeMarkers(data, nodesToDisplay) {
         clearOverlays();
-        var infowindow = new google.maps.InfoWindow();
         var places = data.points;
         for(var i in places)
         {
@@ -43,18 +42,23 @@ function placeMarkers(data, nodesToDisplay) {
                                 map: map
                         });
                         
-                        
-                        
-                        infowindow.setContent(places[i]['title']);
-                        
-                        google.maps.event.addListener(marker, 'click', function () {
-                                infowindow.open(map, this);
-                        });
+                        attachMarkerMessage(marker, places[i]['title']);
                         
                         markersArray.push({id: places[i]['id'], marker : marker});
                 }
         }
 }
+
+function attachMarkerMessage(marker, message)
+{
+        var infowindow = new google.maps.InfoWindow(
+                { content: "Message: " + message }
+        );
+        google.maps.event.addListener(marker, 'click', function() {
+                infowindow.open(map,marker);
+        });
+}
+
 
 function inArray(needle, haystack) {
     var length = haystack.length;
@@ -92,11 +96,16 @@ function fillMenu()
         var categories = markersPool.categories;
         
         for (i in categories) {
-                $('#body').append(makeCategory(categories[i]));
+                $('#body').append(getCategoryView(categories[i]));
         }
 }
 
-function makeCategory(category)
+function getBaloonView()
+{
+        
+}
+
+function getCategoryView(category)
 {
         var nodes = category.nodes;
         var nodesHtml = '';
