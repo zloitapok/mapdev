@@ -1,0 +1,14 @@
+.map-image
+{
+        display: none;
+}
+.to-right
+{
+        float: right;
+}
+.title
+{
+        font-size: 20px;
+        margin: 5px;
+        font-weight: bold;
+}
