@@ -28,6 +28,30 @@ function initialize(lat, lng) {
         map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 }
 
+function MyMarker(controlDiv, map){
+	
+	controlDiv.style.padding = '5px';
+	controlDiv.className= "gmapButtonWrap";
+	
+	var controlUI = document.createElement('DIV');
+	controlUI.id= "userMarkButton";
+	controlUI.className= "gmapButton";
+	controlUI.title = 'Установка вашей метки на карте';
+	controlUI.innerHTML = 'Ваша метка';
+	controlDiv.appendChild(controlUI);
+	
+	google.maps.event.addDomListener(controlUI, 'click', userMarkerFn.set);	
+	
+}
+
+function infowindowTemplate(place)
+{
+        console.log(place);
+        return '<h3>' + place['title'] + '</h3>' +
+                '<p>' + place['address'] + '</p>' +
+                '<p><a href="#">Подробнее</a></p>';
+        
+}
 
 function placeMarkers(data, nodesToDisplay) {
         clearOverlays();
@@ -42,7 +66,7 @@ function placeMarkers(data, nodesToDisplay) {
                                 map: map
                         });
                         
-                        attachMarkerMessage(marker, places[i]['title']);
+                        attachMarkerMessage(marker, infowindowTemplate(places[i]));
                         
                         markersArray.push({id: places[i]['id'], marker : marker});
                 }
@@ -50,9 +74,9 @@ function placeMarkers(data, nodesToDisplay) {
 }
 
 function attachMarkerMessage(marker, message)
-{
+{        
         var infowindow = new google.maps.InfoWindow(
-                { content: "Message: " + message }
+                { content: message }
         );
         google.maps.event.addListener(marker, 'click', function() {
                 infowindow.open(map,marker);
@@ -143,6 +167,22 @@ function fillMarkersPool(data)
       markersPool = data;
 }
 
+function walkToMarker(node)
+{
+        var node_id = $(node).parent().attr('node_id');
+        var points = markersPool.points;
+        for (i in points) {
+                if (points[i].id == node_id)
+                {
+                        var lat = points[i].lat;
+                        var lng = points[i].lng;
+                }
+        }
+        var myLatlng = new google.maps.LatLng(lat,lng);
+        map.panTo(myLatlng);
+        return false;
+}
+
 $(document).ready( function () {
         
         resizeMap();
@@ -193,18 +233,7 @@ $(document).ready( function () {
         });
         
         $('.category .node a').live('click', function() {
-                var node_id = $(this).parent().attr('node_id');
-                var points = markersPool.points;
-                for (i in points) {
-                        if (points[i].id == node_id)
-                        {
-                                var lat = points[i].lat;
-                                var lng = points[i].lng;
-                        }
-                }
-                var myLatlng = new google.maps.LatLng(lat,lng);
-                map.panTo(myLatlng);
-                return false;
+                walkToMarker($(this));
         });
         
         $('.category .title a').live('click', function() {
